@@ -1,57 +1,21 @@
-import 'package:args/args.dart';
+import 'dart:io';
 
-const String version = '0.0.1';
+void main() {
+  print('=== BMI Calculator: Input & Validasi ===');
 
-ArgParser buildParser() {
-  return ArgParser()
-    ..addFlag(
-      'help',
-      abbr: 'h',
-      negatable: false,
-      help: 'Print this usage information.',
-    )
-    ..addFlag(
-      'verbose',
-      abbr: 'v',
-      negatable: false,
-      help: 'Show additional command output.',
-    )
-    ..addFlag('version', negatable: false, help: 'Print the tool version.');
+  final tinggi = _readPositiveDouble('Masukkan tinggi (cm): ');
+  final berat  = _readPositiveDouble('Masukkan berat (kg): ');
+
+  print('Input OK! Tinggi: ${tinggi.toStringAsFixed(1)} cm, '
+        'Berat: ${berat.toStringAsFixed(1)} kg');
 }
 
-void printUsage(ArgParser argParser) {
-  print('Usage: dart bmi_calculator.dart <flags> [arguments]');
-  print(argParser.usage);
-}
-
-void main(List<String> arguments) {
-  final ArgParser argParser = buildParser();
-  try {
-    final ArgResults results = argParser.parse(arguments);
-    bool verbose = false;
-
-    // Process the parsed arguments.
-    if (results.flag('help')) {
-      printUsage(argParser);
-      return;
-    }
-    if (results.flag('version')) {
-      print('bmi_calculator version: $version');
-      return;
-    }
-    if (results.flag('verbose')) {
-      verbose = true;
-    }
-
-    // Act on the arguments provided.
-    print('Positional arguments: ${results.rest}');
-    if (verbose) {
-      print('[VERBOSE] All arguments: ${results.arguments}');
-    }
-  } on FormatException catch (e) {
-    // Print usage information if an invalid argument was provided.
-    print(e.message);
-    print('');
-    printUsage(argParser);
+double _readPositiveDouble(String prompt) {
+  while (true) {
+    stdout.write(prompt);
+    final s = stdin.readLineSync();
+    final v = double.tryParse((s ?? '').trim());
+    if (v != null && v > 0) return v;
+    print('Input tidak valid. Masukkan angka > 0.');
   }
 }
