@@ -2,19 +2,38 @@ import 'dart:io';
 import 'dart:math';
 
 void main() {
-  print('=== BMI Calculator: Hitung & Kategori ===');
+  print('=== BMI Calculator: dengan Riwayat ===');
 
-  final tinggiCm = _readPositiveDouble('Masukkan tinggi (cm): ');
-  final beratKg  = _readPositiveDouble('Masukkan berat (kg): ');
+  final List<Map<String, dynamic>> riwayat = [];
 
-  final bmi = _hitungBMI(tinggiCm, beratKg);
-  final kategori = _kategoriBMI(bmi);
+  // perulangan utama untuk input berulang
+  while (true) {
+    final tinggiCm = _readPositiveDouble('Masukkan tinggi (cm): ');
+    final beratKg  = _readPositiveDouble('Masukkan berat (kg): ');
 
-  print('\nHasil:');
-  print('Tinggi : ${tinggiCm.toStringAsFixed(1)} cm');
-  print('Berat  : ${beratKg.toStringAsFixed(1)} kg');
-  print('BMI    : ${bmi.toStringAsFixed(2)}');
-  print('Kategori: $kategori');
+    final bmi = _hitungBMI(tinggiCm, beratKg);
+    final kategori = _kategoriBMI(bmi);
+
+    // simpan ke riwayat
+    riwayat.add({
+      'tinggi': tinggiCm,
+      'berat':  beratKg,
+      'bmi':    double.parse(bmi.toStringAsFixed(2)),
+      'kategori': kategori,
+      'waktu': DateTime.now(),
+    });
+
+    print('\nHasil: BMI=${bmi.toStringAsFixed(2)} ($kategori)');
+
+    // tanya lanjut?
+    stdout.write('Hitung lagi? (y/n): ');
+    final ans = (stdin.readLineSync() ?? '').trim().toLowerCase();
+    if (ans != 'y') break;
+    print('');
+  }
+
+  // tampilkan riwayat dengan perulangan
+  _tampilkanRiwayat(riwayat);
 }
 
 double _readPositiveDouble(String prompt) {
@@ -37,4 +56,26 @@ String _kategoriBMI(double bmi) {
   if (bmi < 25.0) return 'Normal';
   if (bmi < 30.0) return 'Gemuk';
   return 'Obesitas';
+}
+
+void _tampilkanRiwayat(List<Map<String, dynamic>> riwayat) {
+  if (riwayat.isEmpty) {
+    print('\nBelum ada riwayat.');
+    return;
+  }
+  print('\n=== RIWAYAT PERHITUNGAN ===');
+  print('No |     Waktu      | Tinggi(cm) | Berat(kg) |  BMI  | Kategori');
+  print('---+-----------------+------------+-----------+-------+----------');
+
+  for (int i = 0; i < riwayat.length; i++) {
+    final r = riwayat[i];
+    final no = (i + 1).toString().padLeft(2);
+    final t  = (r['tinggi'] as num).toStringAsFixed(1).padLeft(10);
+    final b  = (r['berat']  as num).toStringAsFixed(1).padLeft(9);
+    final bmi = (r['bmi']   as num).toStringAsFixed(2).padLeft(5);
+    final kat = (r['kategori'] as String).padRight(8);
+    final waktu = (r['waktu'] as DateTime);
+    final ts = '${waktu.hour.toString().padLeft(2, '0')}:${waktu.minute.toString().padLeft(2, '0')}';
+    print('$no |   $ts         | $t | $b | $bmi | $kat');
+  }
 }
